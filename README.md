@@ -14,6 +14,8 @@
 - step - move step
 - radius - radius of arm element
 
+-------------
+
 	it have two way for initialize:
 	1) create div element with class "linebar" and define attributes wich must begin "from data-linebar-" + option
 	2) use javascript notation as you can see below
