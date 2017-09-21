@@ -23,10 +23,10 @@
 ```js
 	$('.someclass').linebar({
 		min : 0,
-        max : 20000,
-        from : 5000,
-        to : 15000,
-        step : 2000
+		max : 20000,
+		from : 5000,
+		to : 15000,
+		step : 2000
 	});
 ```
 

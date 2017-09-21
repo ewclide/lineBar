@@ -350,6 +350,7 @@
 
     $.fn.linebar = function(options)
     {
+        console.log(options)
         this.each(function(){
             if (options) options.elem = $(this);
             else options = { elem: $(this) };
