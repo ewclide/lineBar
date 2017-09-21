@@ -1,0 +1,58 @@
+.linebar-wrapper *, .linebar-wrapper {
+    box-sizing: border-box;
+}
+.linebar-wrapper {
+    width: 100%;
+    left: 0;
+    position: relative;
+}
+.linebar-wrapper .linebar-box {
+    position: relative;
+}
+.linebar-wrapper .linebar-box .line {
+    background: #ccdcea;
+    height: 4px;
+    margin: 20px 0 10px;
+    position: relative;
+    cursor: pointer;
+}
+.linebar-wrapper .linebar-box .arm {
+    background: white;
+    width: 20px;
+    height: 20px;
+    z-index: 100;
+    position: absolute;
+    border-radius: 50px;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    border: 2px solid #8fb318;
+    cursor: pointer;
+    box-shadow: 0px 2px 4px rgba(0,0,0,0.15);
+    left: 0;
+}
+.linebar-wrapper .linebar-box .arm:after {
+    background: -webkit-linear-gradient(bottom, #acacac, white);
+    background: -o-linear-gradient(bottom, #acacac, white);
+    background: linear-gradient(to top, #acacac, white);
+    content: "";
+    height: 12px;
+    width: 12px;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin: auto;
+    border: 1px solid #c0c0c0;
+}
+.linebar-wrapper .linebar-box .bar {
+    background: #8fb318;
+    width: 0%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    position: absolute;
+    z-index: 10;
+}
