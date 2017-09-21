@@ -3,8 +3,7 @@
 
 ### Description
 
-	it allow to make binding two fields of the two objects.
-	Bind function also can change value or values bofere writing to the fields (modify) and appoint callbacks (trigger)
+	it allow define range of values
 
 ### Agruments
 
