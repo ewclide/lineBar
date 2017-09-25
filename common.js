@@ -5,7 +5,14 @@ document.addEventListener("DOMContentLoaded", function() {
         max : 20000,
         from : 3000,
         to : 10000,
-        step : 2000
+        onchange : function(data)
+        {
+        	console.log(data)
+        },
+        onclick : function(data)
+        {
+        	console.log(data)
+        }
     });
 
 });

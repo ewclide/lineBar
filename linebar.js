@@ -1,4 +1,4 @@
-(function(){
+﻿(function(){
 
     function isTouch()
     {
@@ -14,7 +14,6 @@
             this.elem = document.createElement("div");
             this.elem.setAttribute('class', 'arm');
 
-            this.parent = options.parent;
             this.radius = options.radius;
             this.pos = options.pos;
 
@@ -91,11 +90,6 @@
             this.from = state.from;
             this.to = state.to;
         }
-
-        listenEvents()
-        {
-            
-        }
     }
 
     class Field
@@ -107,9 +101,6 @@
             this.elem = document.createElement("input");
             this.elem.setAttribute('type', 'text');
             this.elem.value = value;
-            this.elem.addEventListener("change", function(e){
-                //action
-            });
         }
 
         setValue(value)
@@ -124,6 +115,8 @@
     {
         constructor(options)
         {
+            
+
             var self = this;
 
             this.elem = options.elem;
@@ -131,10 +124,20 @@
             // options
             var minValue = options.min || parseInt(this.elem.attr("data-linebar-min")) || 0,
                 maxValue = options.max || parseInt(this.elem.attr("data-linebar-max")) || 100,
-                formValue = options.from || parseInt(this.elem.attr("data-linebar-from")) || 0,
-                toValue = options.to || parseInt(this.elem.attr("data-linebar-to")) || 100,
+                formValue = options.from || parseInt(this.elem.attr("data-linebar-from")) || minValue,
+                toValue = options.to || parseInt(this.elem.attr("data-linebar-to")) || maxValue,
                 radius = options.radius || parseInt(this.elem.attr("data-linebar-arm-radius")) || 10,
-                step = options.step || parseInt(this.elem.attr("data-linebar-step")) || 0;
+                step = options.step || parseInt(this.elem.attr("data-linebar-step")) || 0,
+                changeFunc = options.onchange || this.elem.attr("data-linebar-onchange") || false,
+                clickFunc = options.onclick || this.elem.attr("data-linebar-onclick") || false;
+
+                //console.log(changeFunc)
+
+            if (typeof changeFunc == "string")
+                changeFunc = eval("(function(){ return " + this.elem.attr("data-linebar-onchange") + "})()");
+            
+            if (typeof clickFunc == "string")
+                clickFunc = eval("(function(){ return " + this.elem.attr("data-linebar-onclick") + "})()");
             
             // append main wrapper
             this.wrapper = document.createElement("div");
@@ -150,6 +153,8 @@
 
             // object of system state
             this.state = {
+                maxValue : maxValue,
+                minValue : minValue,
                 from : this.valueToPx(formValue),
                 to : this.valueToPx(toValue),
                 min : 0,
@@ -159,12 +164,10 @@
             // active components
             this.leftArm = new Arm({
                 radius : radius,
-                parent : this,
                 pos : this.state.from
             });
             this.rightArm = new Arm({
                 radius : radius,
-                parent : this,
                 pos : this.state.to
             });
             this.bar = new Bar({
@@ -176,87 +179,31 @@
 
             this.mousePos = 0;
 
+            // add apply button
+            if (clickFunc && typeof clickFunc == "function")
+            {
+                this.button = document.createElement("button");
+                this.button.innerText = '↵';
+                this.button.onclick = function()
+                {
+                    clickFunc(self.state);
+                }
+            }
+
             document.addEventListener("mousemove", function(e){
+                self.updateFromEvent({
+                    pos : e.clientX,
+                    change : changeFunc
+                });
+            });
 
-                /*var increment = e.clientX - self.mousePos,
-                    radius = self.leftArm.radius,
-                    data = {
-                        from : self.state.from,
-                        to : self.state.to
-                    }
-
-                self.mousePos = e.clientX;
-
-                if (self.leftArm.active)
-                {
-                    increment = self.filterInctrement({
-                        value : self.state.from,
-                        increment : increment,
-                        step : self.step,
-                        border : {
-                            from : self.state.min,
-                            to : self.state.to - radius * 2
-                        }
+            document.addEventListener("touchmove", function(e){
+                for (var i = 0; i < e.touches.length; i++)
+                    self.updateFromEvent({
+                        pos : e.touches[i].clientX,
+                        target : e.touches[i].target,
+                        change : changeFunc
                     });
-
-                    data.from += increment;
-
-                    self.update(data);
-                }
-                else if (self.rightArm.active)
-                {
-                    increment = self.filterInctrement({
-                        value : self.state.to,
-                        increment : increment,
-                        step : self.step,
-                        border : {
-                            from : self.state.from + radius * 2,
-                            to : self.state.max
-                        }
-                    });
-
-                    data.to += increment;
-
-                    self.update(data);
-                }*/
-
-                var distance = e.clientX - self.absCoord,
-                    radius = self.leftArm.radius,
-                    data = {
-                        from : self.state.from,
-                        to : self.state.to
-                    };
-
-                if (self.leftArm.active)
-                {
-                    distance = self.filterValue({
-                        distance : distance,
-                        step : self.step,
-                        border : {
-                            from : self.state.min,
-                            to : self.state.to - radius * 2
-                        }
-                    });
-
-                    data.from = distance;
-
-                    self.update(data);
-                }
-                else if (self.rightArm.active)
-                {
-                    distance = self.filterValue({
-                        distance : distance,
-                        step : self.step,
-                        border : {
-                            from : self.state.from + radius * 2,
-                            to : self.state.max
-                        }
-                    });
-
-                    data.to = distance;
-
-                    self.update(data);
-                }
             });
 
             document.addEventListener("scroll", function(){
@@ -268,18 +215,6 @@
             });
 
             this.create();
-        }
-
-        filterValue(data)
-        {
-            var distance = data.distance;
-
-            if (data.step) distance = data.step * Math.round(distance / data.step);
-
-            if (distance < data.border.from) distance = data.border.from;
-            else if (distance > data.border.to) distance = data.border.to;
-
-            return distance;
         }
 
         /*filterInctrement(data)
@@ -299,6 +234,116 @@
             return increment;
         }*/
 
+        filterValue(data)
+        {
+            var distance = data.distance;
+
+            if (data.step) distance = data.step * Math.round(distance / data.step);
+
+            if (distance < data.border.from) distance = data.border.from;
+            else if (distance > data.border.to) distance = data.border.to;
+
+            return distance;
+        }
+
+        updateFromEvent(opt)
+        {
+            var distance = opt.pos - this.absCoord,
+                    radius = this.leftArm.radius,
+                    target = "",
+                    data = {
+                        from : this.state.from,
+                        to : this.state.to,
+                        change : opt.change
+                    };
+
+
+            if (opt.target)
+            {
+                if (this.leftArm.elem === opt.target) target = "left";
+                else if (this.rightArm.elem === opt.target) target = "right";
+            }
+            else
+            {
+                if (this.leftArm.active) target = "left";
+                else if (this.rightArm.active) target = "right";
+            }
+
+            if (target == "left")
+            {
+                distance = this.filterValue({
+                    distance : distance,
+                    step : this.step,
+                    border : {
+                        from : this.state.min,
+                        to : this.state.to - radius * 2
+                    }
+                });
+
+                data.from = distance;
+
+                this.update(data);
+            }
+            else if (target == "right")
+            {
+                distance = this.filterValue({
+                    distance : distance,
+                    step : this.step,
+                    border : {
+                        from : this.state.from + radius * 2,
+                        to : this.state.max
+                    }
+                });
+
+                data.to = distance;
+
+                this.update(data);
+            }
+
+            // ************* INCREMENT MODE ****************
+            /*var increment = e.clientX - this.mousePos,
+                    radius = this.leftArm.radius,
+                    data = {
+                        from : this.state.from,
+                        to : this.state.to
+                    }
+
+                this.mousePos = e.clientX;
+
+                if (this.leftArm.active)
+                {
+                    increment = this.filterInctrement({
+                        value : this.state.from,
+                        increment : increment,
+                        step : this.step,
+                        border : {
+                            from : this.state.min,
+                            to : this.state.to - radius * 2
+                        }
+                    });
+
+                    data.from += increment;
+
+                    this.update(data);
+                }
+                else if (this.rightArm.active)
+                {
+                    increment = this.filterInctrement({
+                        value : this.state.to,
+                        increment : increment,
+                        step : this.step,
+                        border : {
+                            from : this.state.from + radius * 2,
+                            to : this.state.max
+                        }
+                    });
+
+                    data.to += increment;
+
+                    this.update(data);
+                }*/
+        }
+
         update(data)
         {
             this.leftArm.move(data.from);
@@ -308,6 +353,11 @@
             this.maxField.setValue(this.pxToValue(data.to));
             this.state.from = data.from;
             this.state.to = data.to;
+            this.state.fromValue = this.minField.value;
+            this.state.toValue = this.maxField.value;
+
+            if (typeof data.change == "function")
+                data.change(this.state);
         }
 
         pxToValue(px)
@@ -337,20 +387,20 @@
             this.wrapper.append(box);
 
             this.multyAppend(box, [ this.leftArm.elem, this.rightArm.elem, this.bar.elem, line ]);
-            this.multyAppend(fields, [ this.minField.elem, this.maxField.elem ]);
+            this.multyAppend(fields, [ this.minField.elem, this.maxField.elem, this.button ]);
         }
 
         multyAppend(place, elems)
         {
             elems.forEach(function(elem){
-                place.append(elem);
+                if (elem !== undefined)
+                    place.append(elem);
             });
         }
     }
 
     $.fn.linebar = function(options)
     {
-        console.log(options)
         this.each(function(){
             if (options) options.elem = $(this);
             else options = { elem: $(this) };

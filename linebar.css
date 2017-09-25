@@ -1,3 +1,6 @@
+.linebar-wrapper *:focus {
+    outline: none;
+}
 .linebar-wrapper *, .linebar-wrapper {
     box-sizing: border-box;
 }
@@ -56,14 +59,35 @@
     position: absolute;
     z-index: 10;
 }
-
+.linebar-fields {
+    display: flex;
+}
 .linebar-wrapper input[type=text] {
     border: 1px solid #bbbbbb;
-    display: inline-block;
-    width: 48%;
+    width: 50%;
     margin: 2px;
     height: 30px;
     padding: 0 10px;
     color: #565656;
     text-align: center;
+    vertical-align: top;
+}
+.linebar-wrapper button {
+    background: #8fb318;
+    border: none;
+    display: inline-block;
+    color: white;
+    height: 30px;
+    width: 30px;
+    font-size: 20px;
+    text-shadow: 0px 1px 0px #5a7500;
+    margin: 2px;
+    vertical-align: top;
+    cursor: pointer;
+    -webkit-transition: -0.25s;
+    -o-transition: -0.25s;
+    transition: -0.25s;
+}
+.linebar-wrapper button:hover {
+    opacity: 0.9;
 }
