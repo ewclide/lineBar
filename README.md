@@ -26,14 +26,14 @@
 
 ```html
 	<div class="linebar"
-         data-linebar-min="0"
-         data-linebar-max="20000"
-         data-linebar-from="5000"
-         data-linebar-to="15000"
-         data-linebar-step="3000"
-         data-linebar-onchange="function(e){ console.log(e); }"
-         data-linebar-onclick="doSomeThing"
-    ></div>
+		 data-linebar-min="0"
+		 data-linebar-max="20000"
+		 data-linebar-from="5000"
+		 data-linebar-to="15000"
+		 data-linebar-step="3000"
+		 data-linebar-onchange="function(e){ console.log(e); }"
+		 data-linebar-onclick="doSomeThing"
+	></div>
 ```
 
 ```js
