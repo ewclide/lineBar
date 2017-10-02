@@ -188,7 +188,12 @@
                 this.button.innerText = '↵';
                 this.button.onclick = function()
                 {
-                    clickFunc(self.state);
+                    clickFunc({
+                        max : self.state.maxValue,
+                        min : self.state.minValue,
+                        from : self.state.fromValue,
+                        to : self.state.toValue
+                    });
                 }
             }
 
