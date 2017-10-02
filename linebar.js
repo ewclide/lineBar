@@ -155,10 +155,12 @@
             this.state = {
                 maxValue : maxValue,
                 minValue : minValue,
+                min : 0,
+                max : this.width,
+                fromValue : formValue,
+                toValue : toValue,
                 from : this.valueToPx(formValue),
                 to : this.valueToPx(toValue),
-                min : 0,
-                max : this.width
             }
             
             // active components
@@ -206,6 +208,20 @@
                     });
             });
 
+            this.minField.elem.addEventListener("change", function(e){
+                self.updateFromState({
+                    from : self.valueToPx(e.target.value),
+                    change : changeFunc
+                });
+            });
+
+            this.maxField.elem.addEventListener("change", function(e){
+                self.updateFromState({
+                    to : self.valueToPx(e.target.value),
+                    change : changeFunc
+                });
+            });
+
             document.addEventListener("scroll", function(){
                 self.absCoord = self.wrapper.getBoundingClientRect().left;
             });
@@ -246,6 +262,44 @@
             return distance;
         }
 
+        updateFromState(opt)
+        {
+            var radius = this.leftArm.radius,
+                data = {
+                    from : this.state.from,
+                    to : this.state.to,
+                    change : opt.change
+                };
+
+            if (opt.from)
+                data.from = this.filterValue({
+                    distance : opt.from,
+                    step : this.step,
+                    border : {
+                        from : this.state.min,
+                        to : this.state.to - radius * 2
+                    }
+                });
+
+            if (opt.to)
+                data.to = this.filterValue({
+                    distance : opt.to,
+                    step : this.step,
+                    border : {
+                        from : this.state.from + radius * 2,
+                        to : this.state.max
+                    }
+                });
+
+            this.leftArm.active = true;
+            this.rightArm.active = true;
+
+            this.update(data);
+
+            this.leftArm.active = false;
+            this.rightArm.active = false;
+        }
+
         updateFromEvent(opt)
         {
             var distance = opt.pos - this.absCoord,
@@ -256,7 +310,6 @@
                         to : this.state.to,
                         change : opt.change
                     };
-
 
             if (opt.target)
             {
@@ -357,7 +410,12 @@
             this.state.toValue = this.maxField.value;
 
             if (typeof data.change == "function")
-                data.change(this.state);
+                data.change({
+                    max : this.state.maxValue,
+                    min : this.state.minValue,
+                    from : this.state.fromValue,
+                    to : this.state.toValue
+                });
         }
 
         pxToValue(px)

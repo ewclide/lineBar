@@ -71,6 +71,7 @@
     color: #565656;
     text-align: center;
     vertical-align: top;
+    font-size: 14px;
 }
 .linebar-wrapper button {
     background: #8fb318;
@@ -78,9 +79,9 @@
     display: inline-block;
     color: white;
     height: 30px;
-    width: 30px;
+    width: 35px;
     font-size: 20px;
-    text-shadow: 0px 1px 0px #5a7500;
+    text-shadow: 0px 1px 0px #879200;
     margin: 2px;
     vertical-align: top;
     cursor: pointer;
