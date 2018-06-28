@@ -1,0 +1,13 @@
+body {
+    font-family: Segoe UI;
+    font-size: 16px;
+    line-height: 28px;
+    color: #676767;
+}
+body * {
+	box-sizing: border-box;
+}
+.wrapper {
+    width: 250px;
+    margin: auto;
+}

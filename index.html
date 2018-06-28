@@ -1,30 +1,28 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Title</title>
-    <script type="text/javascript" src="jquery.js"></script>
-    <link href="linebar.css" type="text/css" rel="stylesheet"/>
-    <script type="text/javascript" src="linebar.js"></script>
-    <script type="text/javascript" src="common.js"></script>
+	<title>linebar</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700" rel="stylesheet">
+	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="result/linebar.css">
 </head>
 <body>
-    <script>
-        var asd = function(e)
-        {
-            console.log(e);
-        }
-    </script>
-    <div class="linebar"
-         data-linebar-min="0"
-         data-linebar-max="20000"
-         data-linebar-from="5000"
-         data-linebar-to="15000"
-         data-linebar-step="1000"
-         data-linebar-onclick="asd"
-         style="width: 200px; margin: 0 auto">
-    </div>
-    <!-- <div class="someclass" style="width: 200px; margin: 0 auto"></div> -->
+	<div id="range" class="wrapper"
+		data-linebar
+		data-width="250"
+        data-min="0"
+        data-max="20000"
+        data-from="5000"
+        data-to="15000"
+        data-step="0"
+        data-on-click="console.log(e)"
+        data-on-ready="e.setState({ from : 1000, to : 3000 })"
+        data-width="500"
+    ></div>
+	<script src="result/linebar.dev.js"></script>
+	<script src="js/common.js"></script>
 </body>
 </html>
