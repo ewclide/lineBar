@@ -38,7 +38,7 @@ export function getSettings(settings, defaults, attributes, element)
 	for (var i in defaults)
 		if (settings[i] === undefined)
 		{
-			var attr = element.getAttribute('data-' + (attributes[i] || i)),
+			var attr = element ? element.getAttribute('data-' + (attributes[i] || i)) : null,
 				num = +attr;
 
 			if (attr === "" || attr === "true")

@@ -13,20 +13,19 @@ class APIClass
 		this._listId = {};
 	}
 
-	_call(target, name, data)
+	_call(target, name, args)
 	{
 		var result = [];
 
 		target._listId.forEach((id) => {
 
-			let value, subObject = this._listId[id];
+			let value, obj = this._listId[id];
 
-			if (subObject && typeof subObject[name] == "function")
-				value = subObject[name](data);
+			if (obj && typeof obj[name] == "function")
+				value = obj[name].apply(obj, args);
 
 			if (value !== undefined)
 				result.push(value);
-
 		});
 
 		return result.length == 1 ? result[0] : result;
@@ -37,8 +36,8 @@ class APIClass
 		var self = this;
 
 		methods.forEach(method => {
-			Output.prototype[method] = function(data){
-				return self._call(this, method, data);
+			Output.prototype[method] = function(){
+				return self._call(this, method, arguments);
 			}
 		});
 	}
@@ -56,4 +55,4 @@ class APIClass
 	}
 }
 
-export var API = new APIClass;
+export var API = new APIClass();

@@ -2,10 +2,10 @@ import { createElement }  from './functions';
 
 export class Bar
 {
-    constructor(options)
+    constructor()
     {
         this.element = createElement("div", "bar");
-        this.setState(options);
+        this.element.ondragstart = function(){ return false; }
     }
 
     setState(state)

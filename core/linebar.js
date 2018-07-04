@@ -34,77 +34,92 @@ export class Linebar
         // add object to API
         this.id = API.add(this);
 
-        this.target = target;
         func.getSettings(settings, defaults, attributes, target);
 
-        if (settings.width)
-            this.target.style.width = settings.width + "px";
+        this.width     = typeof settings.width == "number" ? settings.width + "px" : settings.width;
+        this.carSize   = settings.interact ? settings.radius * 2 : 0;
+        this.minValue  = settings.min;
+        this.maxValue  = settings.max;
+        this.fromValue = settings.from;
+        this.toValue   = settings.to;
+        this.step      = settings.step;
+
+        this.target = target ? target : func.createElement("div");
+        this.target.style.width = this.width;
+
+        // special values
+        this._special = this._calcSpecial();
+
+        // state in pixels
+        this._state = {
+            min      : this._valueToPx(this.minValue),
+            max      : this._valueToPx(this.maxValue),
+            from     : this._valueToPx(this.fromValue),
+            to       : this._valueToPx(this.toValue)
+        }
+
+        this.leftCar = new Carriage(settings.radius);
+        this.rightCar = new Carriage(settings.radius);
+        this.bar = new Bar();
+
+        if (settings.fields)
+        {
+            this.minField = new Field();
+            this.minField.onChange = function(value)
+            {
+                self._updateFromState({
+                    from : self._valueToPx(value),
+                });
+            }
+
+            this.maxField = new Field();
+            this.maxField.onChange = function(value)
+            {
+                self._updateFromState({
+                    to : self._valueToPx(value),
+                });
+            }
+        }
+
+        this.setState(settings);
 
         this.onChange = func.getCallBack(settings.onChange);
         this.onClick  = func.getCallBack(settings.onClick);
         this.onReady  = func.getCallBack(settings.onReady);
-
-        // special values
-        this.width = typeof settings.width == "number" ? settings.width : this.target.offsetWidth; // max right position
-        this.absCoord = this._getAbsoluteCoord(); //absolute left position
-        this.ration = (settings.max - settings.min) / this.width; // value per pixel
-        this.step = settings.step ? settings.step / this.ration : 0; // value step converted to pixel step for moving
-        this.carSize = settings.interact ? settings.radius * 2 : 0;
-
-        // object of system state
-        this._state = {
-            minValue : settings.min,
-            maxValue : settings.max,
-            fromValue: settings.from,
-            toValue  : settings.to,
-            min      : 0,
-            max      : this.width,
-            from     : this._valueToPx(settings.from),
-            to       : this._valueToPx(settings.to),
-        }
-
-        this.leftCar = new Carriage({
-            radius : settings.radius,
-            offset : this._state.from
-        });
-
-        this.rightCar = new Carriage({
-            radius : settings.radius,
-            offset : this._state.to
-        });
-
-        this.bar = new Bar({
-            from : this._state.from,
-            to   : this._state.to
-        });
-
-        if (settings.fields)
-        {
-            this.minField = new Field({
-                value : settings.from || settings.min,
-                onChange : function(value)
-                {
-                    self._updateFromPx({
-                        from : self._valueToPx(value),
-                    });
-                }
-            });
-            this.maxField = new Field({
-                value : settings.to || settings.max,
-                onChange : function(value)
-                {
-                    self._updateFromPx({
-                        to : self._valueToPx(value),
-                    });
-                }
-            });
-        }
 
         this._createElements(settings);
         this._listenEvents(settings);
 
         if (typeof this.onReady == "function")
             this.onReady(API.output(this.id)); // return API of this object
+    }
+
+    _resize()
+    {
+        this.target.style.width = this.width;
+
+        this._special = this._calcSpecial();
+
+        this._state.max = this._valueToPx(this.maxValue);
+        this._state.min = this._valueToPx(this.minValue);
+
+        this._updateFromState({
+            from : this._valueToPx(this.fromValue),
+            to   : this._valueToPx(this.toValue)
+        });
+    }
+
+    _calcSpecial()
+    {
+        var width = this.target.offsetWidth,
+            ration = (this.maxValue - this.minValue) / width;
+
+        return {
+            width    : width,
+            ration   : ration,
+            absCoord : this.target.getBoundingClientRect().left,
+            step     : this.step ? this.step / ration : 0
+        }
     }
 
     _createElements(settings)
@@ -161,17 +176,17 @@ export class Linebar
             });
 
         document.addEventListener("scroll", function(){
-            self.absCoord = self._getAbsoluteCoord();
+            self._special.absCoord = self.target.getBoundingClientRect().left
         });
 
         window.addEventListener("resize", function(){
-            self.absCoord = self._getAbsoluteCoord();
+            self._resize();
         });
     }
 
     _updateFromEvent(e)
     {
-        var offset = e.clientX - this.absCoord,
+        var offset = e.clientX - this._special.absCoord,
             target = "";
 
         if (func.isTouch())
@@ -186,54 +201,18 @@ export class Linebar
         }
 
         if (target == "left")
-        {
-            offset = this._filterValue(offset, {
-                step : this.step,
-                min  : this._state.min,
-                max  : this._state.to - this.carSize
-            });
+            this._update({ from : this._filterValue(offset) });
 
-            this._update({
-                from : offset,
-                to   : this._state.to
-            });
-        }
         else if (target == "right")
-        {
-            offset = this._filterValue(offset, {
-                step : this.step,
-                min  : this._state.from + this.carSize,
-                max  : this._state.max
-            });
-
-            this._update({
-                from : this._state.from,
-                to   : offset
-            });
-        }
-
+            this._update({ to : this._filterValue(offset) });
     }
 
-    _updateFromPx(state)
+    _updateFromState(state)
     {
-        if (state.from === undefined) state.from = this._state.from;
-        if (state.to === undefined) state.to = this._state.to;
-        if (state.to - state.from < this.carSize) state.to = state.from + this.carSize;
-
-        state.to = this._filterValue(state.to, {
-            min  : state.from + this.carSize,
-            max  : this._state.max
-        });
-
-        state.from = this._filterValue(state.from, {
-            min  : this._state.min,
-            max  : state.to - this.carSize
-        });
-
         this.leftCar.active = true;
         this.rightCar.active = true;
 
-        this._update(state);
+        this._update(state, true);
 
         this.leftCar.active = false;
         this.rightCar.active = false;
@@ -241,6 +220,8 @@ export class Linebar
 
     _update(state)
     {
+        state = this._filterState(state);
+
         var fromValue = this._pxToValue(state.from),
             toValue = this._pxToValue(state.to);
 
@@ -248,24 +229,74 @@ export class Linebar
         this.rightCar.move(state.to);
         this.bar.setState(state);
 
-        if (this.minField)
-            this.minField.setValue(fromValue);
-
-        if (this.maxField)
-            this.maxField.setValue(toValue);
-
         this._state.from = state.from;
         this._state.to = state.to;
-        this._state.fromValue = fromValue;
-        this._state.toValue = toValue;
 
-        if (typeof this.onChange == "function")
-            this.onChange(this.getState());
+        if (fromValue != this.fromValue || this.toValue != toValue)
+        {
+            this.fromValue = fromValue;
+            this.toValue = toValue;
+
+            if (this.minField)
+                this.minField.setValue(fromValue);
+
+            if (this.maxField)
+                this.maxField.setValue(toValue);
+
+            if (typeof this.onChange == "function")
+                this.onChange(this.getState());
+        }
+    }
+
+    _filterValue(value)
+    {
+        return this._special.step
+        ? this._special.step * Math.round(value / this._special.step)
+        : value;
+    }
+
+    _filterState(state)
+    {
+        if (state.from === undefined) state.from = this._state.from;
+        if (state.to === undefined) state.to = this._state.to;
+
+        if (this.leftCar.active)
+        {
+            if (state.to - state.from < this.carSize)
+                state.from = state.to - this.carSize;
+
+            if (state.from < this._state.min)
+                state.from = this._state.min;
+
+            if (state.from > this._state.max - this.carSize)
+                state.from = this._state.max - this.carSize;
+        }
+
+        if (this.rightCar.active)
+        {
+            if (state.to - state.from < this.carSize)
+                state.to = state.from + this.carSize;
+
+            if (state.to > this._state.max)
+                state.to = this._state.max;
+
+            if (state.to < this._state.min + this.carSize)
+                state.to = this._state.min + this.carSize;
+        }
+
+        return state;
+    }
+
+    appendTo(element)
+    {
+        element = element.length ? element[0] : element;
+        element.append(this.target);
+        this._resize();
     }
 
     setState(state)
     {
-        this._updateFromPx({
+        this._updateFromState({
             from : this._valueToPx(state.from),
             to   : this._valueToPx(state.to)
         });
@@ -274,36 +305,22 @@ export class Linebar
     getState()
     {
         return {
-            min  : this._state.minValue,
-            max  : this._state.maxValue,
-            from : this._state.fromValue,
-            to   : this._state.toValue
+            min  : this.minValue,
+            max  : this.maxValue,
+            from : this.fromValue,
+            to   : this.toValue
         }
-    }
-
-    _filterValue(value, data)
-    {
-        if (data.step)
-            value = data.step * Math.round(value / data.step);
-
-        if (value < data.min) value = data.min;
-        else if (value > data.max) value = data.max;
-
-        return value;
     }
 
     _pxToValue(px)
     {
-        return px === undefined ? px : px * this.ration;
+        if (px !== undefined)
+            return px * this._special.ration + this.minValue;
     }
 
     _valueToPx(val)
     {
-        return val === undefined ? val : val / this.ration;
-    }
-
-    _getAbsoluteCoord()
-    {
-        return this.target.getBoundingClientRect().left;
+        if (val !== undefined)
+            return (val - this.minValue) / this._special.ration;
     }
 }
