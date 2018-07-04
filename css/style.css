@@ -11,3 +11,8 @@ body * {
     width: 250px;
     margin: auto;
 }
+
+#place {
+	max-width: 1000px;
+	margin: auto;
+}

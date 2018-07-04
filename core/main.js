@@ -1,14 +1,26 @@
 import { Linebar } from './linebar';
 import { API } from './api';
 
-API.setMethods(["setState", "getState", "setup"]);
+API.setMethods(["setState", "getState", "appendTo"]);
 
 $.fn.linebar = function(settings)
 {
-	this.each(function(){
-		var linebar = new Linebar(this, settings);
-		this._linebarId = linebar.id;
-	});
+	var list = [];
+
+	if (this.length)
+		this.each(function(){
+			var linebar = new Linebar(this, settings);
+			this._linebarId = linebar.id;
+			list.push(linebar.id);
+		});
+	
+	else
+	{
+		var linebar = new Linebar(null, settings);
+		list.push(linebar.id);
+	}
+
+	return API.output(list);
 }
 
 $('[data-linebar]').linebar();

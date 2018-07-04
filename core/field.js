@@ -6,8 +6,8 @@ export class Field
     {
         var self = this;
 
-        this.element = createElement("input", { type : "text", value : settings.value });
-        this._onChange = settings.onChange;
+        this.element = createElement("input", { type : "text" });
+        this.onChange = function(){};
 
         this.element.addEventListener("input", function(){
             var value = self.element.value;
@@ -16,7 +16,7 @@ export class Field
         });
 
         this.element.addEventListener("change", function(e){
-            self._onChange(self.element.value);
+            self.onChange(self.element.value);
         });
     }
 

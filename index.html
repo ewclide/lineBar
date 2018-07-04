@@ -12,16 +12,18 @@
 <body>
 	<div id="range" class="wrapper"
 		data-linebar
-		data-width="250"
-        data-min="0"
+		data-width=""
+        data-min="5000"
         data-max="20000"
-        data-from="5000"
+        data-from="7000"
         data-to="15000"
-        data-step="0"
+        data-step=""
         data-on-click="console.log(e)"
-        data-on-ready="e.setState({ from : 1000, to : 3000 })"
+        data-on-change="console.log(e)"
+        data-on-ready="e.setState({ from : 7000, to : 1000 })"
         data-width="500"
     ></div>
+    <div id="place"></div>
 	<script src="result/linebar.dev.js"></script>
 	<script src="js/common.js"></script>
 </body>

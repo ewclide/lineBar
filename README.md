@@ -38,9 +38,12 @@ For example:
 
 ```js
 	// using jquery linebar function
-	$.linebar(query).setState({ from : 1000 });
+	$.linebar("#some_id").setState({ from : 1000 });
 
-	// or get when it ready to use
+	// get api after create linebar
+	$("#some_id").linebar.setState({ from : 1000 });
+
+	// get api in ready callback
 	$('#some_id').linebar({
 		onReady : function(e){
 			e.setState({ to : 5000 });
@@ -48,10 +51,20 @@ For example:
 	});
 ```
 
+Also you can create linebar without appending to element and append it after
+
+```js
+	var place = $("#place"), // or document.querySelector(query);
+		linebar = $().linebar({ min : 0, max : 1000 }); // create without appending
+
+	linebar.appendTo(place);
+```
+
 linebar API provide methods:
 
 - **setState({ from, to })** - set state to the linebar
 - **getState()** - returns current state of the linebar
+- **appendTo(element)** - appends to element wich can be native or jquery object
 
 ### Examples
 
@@ -92,5 +105,5 @@ linebar API provide methods:
 Thank's for using.  
 Developed by Ustinov Maxim - [ewclide][2]
 
-[1]: https://github.com/ewclide/linebar/archive/v2.zip  "download"
+[1]: https://github.com/ewclide/linebar/archive/v2.1.zip  "download"
 [2]: https://vk.com/ewclide  "ewclide"

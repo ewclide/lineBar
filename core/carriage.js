@@ -2,12 +2,11 @@ import { createElement, isTouch } from "./functions";
 
 export class Carriage
 {
-	constructor(settings)
+	constructor(radius)
 	{
 		var self = this;
 
-		this.offset = settings.offset;
-		this.radius = settings.radius;
+		this.radius = radius;
 		this.active = true;
 
 		this.element = createElement(
@@ -24,9 +23,6 @@ export class Carriage
 		);
 
 		this.element.ondragstart = function(){ return false; }
-
-		this.move(settings.offset);
-		this.active = false;
 
 		this._listenEvents();
 	}
@@ -60,9 +56,6 @@ export class Carriage
 	move(offset)
 	{
 		if (this.active)
-		{
 			this.element.style.transform = "translateX(" + (offset - this.radius) + "px)";
-			this.offset = offset;
-		}
 	}
 }
